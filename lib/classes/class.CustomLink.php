@@ -1,7 +1,7 @@
 <?php 
 namespace nvRexHelper;
 
-class nvCustomLink {
+class CustomLink {
 	private $href;
 	private $target;
 

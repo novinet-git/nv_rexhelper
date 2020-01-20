@@ -1,0 +1,8 @@
+package: nv_rexhelper
+version: '1.0.0'
+author: novinet GmbH & Co KG
+supportpage: https://novinet.de
+
+requires:
+    php:
+        version: '>=5.6' # benötigt mindestens PHP 5.6

@@ -12,8 +12,8 @@ class Spam {
     }
 
     public static function addSpamProtection($yform) {
-        $yform->setValueField('text', array('timer_validate','Spamschutz',microtime(true),'1','{"type":"hidden"}'));
-        $yform->setValidateField('customfunction', array("timer_validate","yform_validate_timer","5","Spambots haben keine Chance","0"));
+        $yform->setValueField('text', ['timer_validate','Spamschutz',microtime(true),'1','{"type":"hidden"}']);
+        $yform->setValidateField('customfunction', ["timer_validate","validateTimer","5","Spambots haben keine Chance","0"]);
     }
 }
 

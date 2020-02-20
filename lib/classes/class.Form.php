@@ -2,8 +2,7 @@
 namespace nvRexHelper;
 
 class Form {
-    const DEBUG = false;
-
+    
     public $tableName;
     private $subject;
     private $senderEmail;
@@ -11,8 +10,9 @@ class Form {
     private $mailTo;
     private $templateName;
     private $successPage;
+    private $debug;
 
-    public function __construct($data, $tableName, $yform, $form_action="") {
+    public function __construct($data, $tableName, $yform, $form_action="", $debug=false) {
         $oSql = \rex_sql::factory();
         $oSql->setQuery('select * from ' . \rex::getTablePrefix() . 'yform_email_template WHERE name = "'.$data["template"].'" Limit 1');
         $oSql->getRows();
@@ -32,13 +32,15 @@ class Form {
         $yform->setObjectparams('form_showformafterupdate', 0);
         $yform->setObjectparams('real_field_names', true);
         $yform->setActionField('db', array($this->tableName, "main_where"));
+
+        $this->debug = $debug;
     }
 
     public function sendMail($yform) {
 
         // Ab hier beginnen die Vorbereitungen zum E-Mail-Versand
         $yform_email_template_key = $this->templateName; // Key, wie im Backend unter YForm > E-Mail-Templates hinterlegt
-        $debug = self::DEBUG;
+        $debug = $this->debug;
 
         // Array mit Platzhaltern, die im E-Mail-Template ersetzt werden.
         $values = $yform->objparams['value_pool']['email'];
@@ -46,63 +48,67 @@ class Form {
 
         #$values['custom'] = 'Eigener Platzhalter';
 
-        if ($yform_email_template = \rex_yform_email_template::getTemplate($yform_email_template_key)) {
+        $yform_email_template = \rex_yform_email_template::getTemplate($yform_email_template_key);
+        if (!$yform_email_template && $debug) {
+            echo '<p>YForm E-Mail-Template "'.htmlspecialchars($this->templateName).'" wurde nicht gefunden.';
+            return;
+        }
 
-            if ($debug) { 
-                echo '<p>YForm E-Mail-Template "'.htmlspecialchars($this->templateName).'" wurde gefunden.'; 
-                echo '<hr /><pre>'; var_dump($yform_email_template); echo '</pre><hr />';
+        if ($debug) { 
+            echo '<p>YForm E-Mail-Template "'.htmlspecialchars($this->templateName).'" wurde gefunden.'; 
+            echo '<hr /><pre>'; var_dump($yform_email_template); echo '</pre><hr />';
+        }
+        
+        $yform_email_template = \rex_yform_email_template::replaceVars($yform_email_template, $values);
+
+        if ($yform_email_template['attachments'] != '') {
+            $f = explode(',', $yform_email_template['attachments']);
+            $yform_email_template['attachments'] = array();
+            foreach ($f as $v) {
+                $yform_email_template['attachments'][] = array('name' => $v, 'path' => \rex_path::media($v));
             }
-            
-            $yform_email_template = \rex_yform_email_template::replaceVars($yform_email_template, $values);
+        } else {
+            $yform_email_template['attachments'] = array();
+        }
 
-            if ($yform_email_template['attachments'] != '') {
-                $f = explode(',', $yform_email_template['attachments']);
-                $yform_email_template['attachments'] = array();
-                foreach ($f as $v) {
-                    $yform_email_template['attachments'][] = array('name' => $v, 'path' => \rex_path::media($v));
-                }
-            } else {
-                $yform_email_template['attachments'] = array();
+        if (isset($yform->objparams['value_pool']['email_attachments']) && is_array($yform->objparams['value_pool']['email_attachments'])) {
+            dump($yform->objparams['value_pool']['email_attachments']);
+            foreach ($yform->objparams['value_pool']['email_attachments'] as $v) {
+                $yform_email_template['attachments'][] = ['name' => $v[0], 'path' => \rex_path::pluginData($yform,'manager').'upload/frontend/'.$values["ID"]."_".$v[0]];
             }
+        }
 
-            if (isset($yform->objparams['value_pool']['email_attachments']) && is_array($yform->objparams['value_pool']['email_attachments'])) {
-                dump($yform->objparams['value_pool']['email_attachments']);
-                foreach ($yform->objparams['value_pool']['email_attachments'] as $v) {
-                    $yform_email_template['attachments'][] = ['name' => $v[0], 'path' => \rex_path::pluginData($yform,'manager').'upload/frontend/'.$values["ID"]."_".$v[0]];
-                }
-            }
+        $yform_email_template['mail_to'] = $this->mailTo;
+        //$yform_email_template['mail_to_name'] = "Test Empfänger";
+        $yform_email_template['subject'] = $this->subject;
+        $yform_email_template['mail_from'] = $this->senderEmail;
+        $yform_email_template['mail_from_name'] = $this->senderName;
 
-            $yform_email_template['mail_to'] = $this->mailTo;
-            //$yform_email_template['mail_to_name'] = "Test Empfänger";
-            $yform_email_template['subject'] = $this->subject;
-            $yform_email_template['mail_from'] = $this->senderEmail;
-            $yform_email_template['mail_from_name'] = $this->senderName;
+        $oItem->mail_to = $yform_email_template['mail_to'];
+        $oItem->save();
 
-            $oItem->mail_to = $yform_email_template['mail_to'];
+        if ($debug) echo '<hr /><pre>'; var_dump($yform_email_template); echo '</pre><hr />';
+
+        $oItem->email_log = print_r($yform_email_template,1);
+
+    
+        if (!\rex_yform_email_template::sendMail($yform_email_template, $yform_email_template["name"])) {
+            if ($debug) { echo 'E-Mail konnte nicht gesendet werden.'; }
+            $oItem->sent = "Nein";
             $oItem->save();
+            return false;
 
-            if ($debug) echo '<hr /><pre>'; var_dump($yform_email_template); echo '</pre><hr />';
-
-            $oItem->email_log = print_r($yform_email_template,1);
-
-            if (!$debug) {
-                if (!\rex_yform_email_template::sendMail($yform_email_template, $yform_email_template["name"])) {
-                    if ($debug) { echo 'E-Mail konnte nicht gesendet werden.'; }
-                    $oItem->sent = "Nein";
-                    $oItem->save();
-                    return false;
-
-                } else {
-                    $oItem->sent = "Ja";
-                    $oItem->save();
-                    if ($debug) { echo 'E-Mail erfolgreich gesendet.'; } else {
-                        rex_redirect($this->successPage, \rex_clang::getCurrentId());
-                    }
-                    return true;
-                }
+        } else {
+            $oItem->sent = "Ja";
+            $oItem->save();
+            if ($debug) { echo 'E-Mail erfolgreich gesendet.'; } else {
+                rex_redirect($this->successPage, \rex_clang::getCurrentId());
             }
+            return true;
+        }
+          
 
-        } else if ($debug) echo '<p>YForm E-Mail-Template "'.htmlspecialchars($this->templateName).'" wurde nicht gefunden.';
+       
     }
 
     public function getBackendOutput() { ?>

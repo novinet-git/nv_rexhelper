@@ -9,7 +9,7 @@ class PictureTag {
             $attr .= $key .'="'. $value .'" '; 
         }
 
-        $return = '<picture '.$attr.'>';
+        $return = '<picture>';
 
         $srcSM = MEDIA . 'max_width_sm/' . $media;
         $srcLG = MEDIA . 'max_width_lg/' . $media;
@@ -17,7 +17,7 @@ class PictureTag {
        
         $return .= '<source media="(max-width: 575px)" srcset="'.$srcSM.'">';
         $return .= '<source media="(max-width: 991px)" srcset="'.$srcLG.'">';
-        $return .= '<img src="'.$src.'">';
+        $return .= '<img '.$attr.' src="'.$src.'">';
 
         return $return . '</picture>';
     }

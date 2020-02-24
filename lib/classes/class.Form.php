@@ -33,6 +33,8 @@ class Form {
         $yform->setObjectparams('real_field_names', true);
         $yform->setActionField('db', array($this->tableName, "main_where"));
 
+        #\nvRexHelper\Spam::addSpamProtection($yform);  
+
         $this->debug = $debug;
     }
 
@@ -79,7 +81,7 @@ class Form {
         }
 
         $yform_email_template['mail_to'] = $this->mailTo;
-        //$yform_email_template['mail_to_name'] = "Test Empfänger";
+        $yform_email_template['mail_to_name'] = $this->mailTo;
         $yform_email_template['subject'] = $this->subject;
         $yform_email_template['mail_from'] = $this->senderEmail;
         $yform_email_template['mail_from_name'] = $this->senderName;
@@ -116,7 +118,7 @@ class Form {
             <li class="list-group-item"><strong>E-Mail-Template</strong></li>
             <li class="list-group-item"><?=$this->templateName?></li>
             <li class="list-group-item"><strong>Empfänger E-Mail</strong></li>
-            <li class="list-group-item"><?=$this->senderEmail?></li>  
+            <li class="list-group-item"><?=$this->mailTo?></li>  
             <li class="list-group-item"><strong>Betreff</strong></li>
             <li class="list-group-item"><?=$this->subject?></li>
             <li class="list-group-item"><strong>Absender E-Mail</strong></li>

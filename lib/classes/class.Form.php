@@ -33,6 +33,9 @@ class Form {
         $yform->setObjectparams('real_field_names', true);
         $yform->setActionField('db', array($this->tableName, "main_where"));
 
+        // Spam Protection -> dazu muss Addon yform_spam_protection installiert sein
+        $yform->setValueField('spam_protection', array("honeypot","Bitte nicht ausfüllen.","Ihre Anfrage wurde als Spam erkannt und gelöscht. Bitte versuchen Sie es in einigen Minuten erneut oder wenden Sie sich persönlich an uns.", 0));
+
         #\nvRexHelper\Spam::addSpamProtection($yform);  
 
         $this->debug = $debug;

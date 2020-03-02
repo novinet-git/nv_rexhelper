@@ -22,11 +22,11 @@ class PictureTag {
         return $return . '</picture>';
     }
 
-    public static function generateBackgroundTag($media, $class) {
+    public static function generateBackgroundTag($media, $selector) {
         $return = "<style scoped>";
-        $return .= "." . $class . "{background-image: url('" . MEDIA . $media . "');}";
-        $return .= "@media (max-width: 991px) {.".$class."{background-image: url('" . MEDIA . "max_width_lg/" . $media . "');}}";
-        $return .= "@media (max-width: 575px) {.".$class."{background-image: url('" . MEDIA . "max_width_sm/" . $media . "');}}";
+        $return .= $selector . "{background-image: url('" . MEDIA . $media . "');}";
+        $return .= "@media (max-width: 991px) {".$selector."{background-image: url('" . MEDIA . "max_width_lg/" . $media . "');}}";
+        $return .= "@media (max-width: 575px) {".$selector."{background-image: url('" . MEDIA . "max_width_sm/" . $media . "');}}";
         return $return . "</style>";
-    } 
+    }
 }

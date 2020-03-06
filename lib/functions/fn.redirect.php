@@ -2,11 +2,16 @@
 
 namespace nvRexHelper;
 
-function redirect($articleId, $clangId=null) {
-    $clangId = $clangId ?: \rex_clang::getCurrentId();
-    $url = \rex_getUrl($articleId, $clangId);
-    header("HTTP/1.1 301 Moved Permanently");
-    header("Location: $url");
-    header("Connection: close");
-    exit();
+function redirect($context, $clangId=null) {
+    if($id = intval($context)) {
+		$clangId = $clangId ?: rex_clang::getCurrentId();
+		$url = rex_getUrl($id, $clangId);
+	} else {
+		$url = $context;
+	}
+	
+	header("HTTP/1.1 301 Moved Permanently");
+	header("Location: $url");
+	header("Connection: close");
+	exit();
 }

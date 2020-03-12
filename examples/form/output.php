@@ -1,7 +1,6 @@
 <?php
 $yform = new rex_yform();
 $oForm = new nvRexHelper\Form(rex_var::toArray("REX_VALUE[1]")[0], "nv_contact_requests", $yform, "");
-$oSettings = new nvModuleSettings(REX_MODULE_ID);
 
 if (rex::isBackend()) {
     $oForm->getBackendOutput();
@@ -31,7 +30,7 @@ if (!$form) {
 }
 ?>
 
-<fullscreenmodule class="nv-module-contact-form <?= $oSettings->settings->marginBottom ?>">
+<fullscreenmodule class="nv-module-contact-form">
     <container>
         <row>
             <div class="col-12 col-lg-8 mb-5 mb-lg-0">

@@ -37,18 +37,6 @@ if (!$form) {
                 <?= $form ?>
                 <p>Alle mit einem * gekennzeichneten Felder sind Pflichtfelder</p>
             </div>
-            <div class="col-12 col-lg-4">
-                <div class="bg-light p-5">
-                    <strong>Mainau Akademie e.V.<br>
-                        Schloss Mainau<br>
-                        78465 Insel Mainau</strong>
-                    <br><br>
-                    <a href="mailto:anfragen@mainau-akademie.de"><i class="fal fa-envelope mr-2"></i> anfragen@mainau-akademie.de</a>
-                    <br>
-                    <a href="tel:+497531303202"><i class="fal fa-phone mr-2"></i> +49 (0) 7531 303-202</a>
-                </div>
-
-            </div>
         </row>
     </container>
 </fullscreenmodule>

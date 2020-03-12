@@ -12,7 +12,7 @@ class Form {
     private $successPage;
     private $debug;
 
-    public function __construct($data, $tableName, $yform, $form_action="", $debug=false) {
+    public function __construct($data, $tableName, $yform, $form_action="") {
         $oSql = \rex_sql::factory();
         $oSql->setQuery('select * from ' . \rex::getTablePrefix() . 'yform_email_template WHERE name = "'.$data["template"].'" Limit 1');
         $oSql->getRows();
@@ -33,8 +33,12 @@ class Form {
         $yform->setObjectparams('real_field_names', true);
         $yform->setActionField('db', array($this->tableName, "main_where"));
 
-        // Spam Protection -> dazu muss Addon yform_spam_protection installiert sein
-        $yform->setValueField('spam_protection', array("honeypot","Bitte nicht ausfüllen.","Ihre Anfrage wurde als Spam erkannt und gelöscht. Bitte versuchen Sie es in einigen Minuten erneut oder wenden Sie sich persönlich an uns.", 0));
+        $debug = $data["debug"];
+
+        if(!$debug) {
+            // Spam Protection -> dazu muss Addon yform_spam_protection installiert sein
+            $yform->setValueField('spam_protection', array("honeypot","Bitte nicht ausfüllen.","Ihre Anfrage wurde als Spam erkannt und gelöscht. Bitte versuchen Sie es in einigen Minuten erneut oder wenden Sie sich persönlich an uns.", 0));
+        }
 
         #\nvRexHelper\Spam::addSpamProtection($yform);  
 
@@ -143,7 +147,7 @@ class Form {
             $aArr[$oSql->getValue("name")] = $oSql->getValue("name")." (Betreff: ".$oSql->getValue("subject")." | Absender E-Mail: ".$oSql->getValue("mail_from")." | Absender Name: ".$oSql->getValue("mail_from_name").")";
             $oSql->next();
         }
-
+        $mform->addSelectField("$id.0.debug",["Nein", "Ja"], ["Debug Modus"]);
         $mform->addSelectField("$id.0.template", $aArr, ["label" => "E-Mail-Template"]);
         $mform->addTextField("$id.0.mail_to", ["label" => "Empfänger E-Mail"]);
         $mform->addTextField("$id.0.subject", ["label" => "Abweichender Betreff E-Mail (Optional, sonst Standardwert aus E-Mail-Template)"]);

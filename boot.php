@@ -5,6 +5,6 @@ require_once('lib/constants.php');
 
 require_once('lib/functions/fn.globals.php');
 require_once('lib/functions/fn.pre.php');
-require_once('lib/functions/fn.checkOnlineStatus.php');
 require_once('lib/functions/fn.redirect.php');
+require_once('lib/functions/fn.teasString.php');
 

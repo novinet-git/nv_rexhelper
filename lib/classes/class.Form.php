@@ -111,7 +111,7 @@ class Form {
             $oItem->sent = "Ja";
             $oItem->save();
             if ($debug) { echo 'E-Mail erfolgreich gesendet.'; } else {
-                rex_redirect($this->successPage, \rex_clang::getCurrentId());
+                \rex_redirect($this->successPage, \rex_clang::getCurrentId());
             }
             return true;
         }
@@ -133,7 +133,7 @@ class Form {
             <li class="list-group-item"><strong>Absender Name</strong></li>
             <li class="list-group-item"><?=$this->senderName?></li>         
             <li class="list-group-item"><strong>Erfolgsseite</strong></li>
-            <li class="list-group-item"><?=rex_getUrl($this->successPage) ?></li>
+            <li class="list-group-item"><?=\rex_getUrl($this->successPage) ?></li>
         </ul>
         <?php
     }

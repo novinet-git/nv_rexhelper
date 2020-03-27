@@ -4,8 +4,8 @@ namespace nvRexHelper;
 
 function redirect($context, $clangId=null) {
     if($id = intval($context)) {
-		$clangId = $clangId ?: rex_clang::getCurrentId();
-		$url = rex_getUrl($id, $clangId);
+		$clangId = $clangId ?: \rex_clang::getCurrentId();
+		$url = \rex_getUrl($id, $clangId);
 	} else {
 		$url = $context;
 	}

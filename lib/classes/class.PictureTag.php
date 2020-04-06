@@ -3,6 +3,16 @@
 namespace nvRexHelper;
 
 class PictureTag {
+
+    /**
+     * generate a picture tag to a given media
+     * 
+     * @param string $media
+     * @param array $attributes e.g. ["class" => "nv-image"]
+     * 
+     * @return string
+     */
+
     public static function generate($media, $attributes=[]) {
         $attr = "";
         foreach($attributes as $key => $value) {
@@ -21,6 +31,15 @@ class PictureTag {
 
         return $return . '</picture>';
     }
+
+    /**
+     * generate a background tag for a given media
+     * 
+     * @param string $media
+     * @param string $selector e.g. #img-123
+     * 
+     * @return string
+     */
 
     public static function generateBackgroundTag($media, $selector) {
         $return = "<style scoped>";

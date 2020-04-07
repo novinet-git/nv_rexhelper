@@ -2,6 +2,11 @@
 
 namespace nvRexHelper;
 
+/**
+ * depricated,
+ * please use class PictureTag instead
+ */
+
 class SrcSet {
     public static $LOOKUP = [
         ["Smartphone", 576], 

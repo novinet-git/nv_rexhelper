@@ -60,8 +60,8 @@ class PictureTag {
         $srcLG = MEDIA . 'max_width_lg/' . $media;
         $src = MEDIA . $media; 
        
-        $return .= '<source media="(max-width: 575px)" srcset="'.$srcSM.'">';
-        $return .= '<source media="(max-width: 991px)" srcset="'.$srcLG.'">';
+        $return .= '<source media="(max-width: 575px)" data-srcset="'.$srcSM.'">';
+        $return .= '<source media="(max-width: 991px)" data-srcset="'.$srcLG.'">';
         $return .= '<img '.$attr.' data-src="'.$src.'">';
 
         return $return . '</picture>';

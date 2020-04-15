@@ -11,6 +11,7 @@ class Form {
     private $templateName;
     private $successPage;
     private $debug;
+    private $redirectMode;
 
     public function __construct($data, $tableName, $yform, $form_action="") {
         $oSql = \rex_sql::factory();
@@ -23,6 +24,7 @@ class Form {
         $this->tableName = $tableName;
         $this->templateName = $oSql->getValue("name");
         $this->successPage = $data["REX_LINK_1"];
+        $this->redirectMode = $data["redirectMode"] ? false : true;
 
         if(!$form_action) $form_action = \rex_getUrl('REX_ARTICLE_ID');
 
@@ -81,7 +83,7 @@ class Form {
         }
 
         if (isset($yform->objparams['value_pool']['email_attachments']) && is_array($yform->objparams['value_pool']['email_attachments'])) {
-            dump($yform->objparams['value_pool']['email_attachments']);
+            \dump($yform->objparams['value_pool']['email_attachments']);
             foreach ($yform->objparams['value_pool']['email_attachments'] as $v) {
                 $yform_email_template['attachments'][] = ['name' => $v[0], 'path' => \rex_path::pluginData($yform,'manager').'upload/frontend/'.$values["ID"]."_".$v[0]];
             }
@@ -110,9 +112,12 @@ class Form {
         } else {
             $oItem->sent = "Ja";
             $oItem->save();
-            if ($debug) { echo 'E-Mail erfolgreich gesendet.'; } else {
-                \rex_redirect($this->successPage, \rex_clang::getCurrentId());
-            }
+            if ($debug) { 
+                echo 'E-Mail erfolgreich gesendet.'; 
+            } else if ($this->redirectMode == true) {
+                rex_redirect($this->successPage, \rex_clang::getCurrentId());
+            } 
+
             return true;
         }
           
@@ -122,6 +127,10 @@ class Form {
 
     public function getBackendOutput() { ?>
         <ul class="list-group">
+            <li class="list-group-item"><strong>Debug Modus</strong></li>
+            <li class="list-group-item"><?=$this->debug ? "Ja" : "Nein"?></li>
+            <li class="list-group-item"><strong>Automatische Weiterleitung zur Erfolgsseite?</strong></li>
+            <li class="list-group-item"><?=$this->redirectMode ? "Ja" : "Nein"?></li>
             <li class="list-group-item"><strong>E-Mail-Template</strong></li>
             <li class="list-group-item"><?=$this->templateName?></li>
             <li class="list-group-item"><strong>Empfänger E-Mail</strong></li>
@@ -133,7 +142,7 @@ class Form {
             <li class="list-group-item"><strong>Absender Name</strong></li>
             <li class="list-group-item"><?=$this->senderName?></li>         
             <li class="list-group-item"><strong>Erfolgsseite</strong></li>
-            <li class="list-group-item"><?=\rex_getUrl($this->successPage) ?></li>
+            <li class="list-group-item"><?=rex_getUrl($this->successPage) ?></li>
         </ul>
         <?php
     }
@@ -148,6 +157,7 @@ class Form {
             $oSql->next();
         }
         $mform->addSelectField("$id.0.debug",["Nein", "Ja"], ["Debug Modus"]);
+        $mform->addSelectField("$id.0.redirectMode",["Ja", "Nein"], ["Automatische Weiterleitung zur Erfolgsseite?"]);
         $mform->addSelectField("$id.0.template", $aArr, ["label" => "E-Mail-Template"]);
         $mform->addTextField("$id.0.mail_to", ["label" => "Empfänger E-Mail"]);
         $mform->addTextField("$id.0.subject", ["label" => "Abweichender Betreff E-Mail (Optional, sonst Standardwert aus E-Mail-Template)"]);

@@ -19,11 +19,12 @@ function BuildItemCols($items, $colsAmount) {
     $result = [];
     $colsAmount = intval($colsAmount);
     $length = count($items);
+    $oneCol = [$items];
 
     // check if parameters are valid
-    if (empty($items) || $length <= 1) return $items;
-    if (!$colsAmount || $colsAmount <= 1) return $items;
-    if ($length < $colsAmount) return $items;
+    if (empty($items) || $length <= 1) return $oneCol;
+    if (!$colsAmount || $colsAmount <= 1) return $oneCol;
+    if ($length < $colsAmount) return $oneCol;
 
     // calc the equal amount of the items for $colsAmount
     $div = $length / $colsAmount;

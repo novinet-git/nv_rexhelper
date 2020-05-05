@@ -12,4 +12,5 @@ requires:
     mblock: ^1.0.0
     developer: ^1.0.0
     cke5: ^1.0.0
+    url: ^1.0.0
 

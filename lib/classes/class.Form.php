@@ -98,7 +98,11 @@ class Form {
         $oItem->mail_to = $yform_email_template['mail_to'];
         $oItem->save();
 
-        if ($debug) echo '<hr /><pre>'; var_dump($yform_email_template); echo '</pre><hr />';
+        if ($debug) {
+            echo '<hr /><pre>'; 
+            var_dump($yform_email_template); 
+            echo '</pre><hr />';
+        }
 
         $oItem->email_log = print_r($yform_email_template,1);
 

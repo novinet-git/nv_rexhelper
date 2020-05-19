@@ -13,5 +13,4 @@ requires:
     developer: ^1.0.0
     cke5: ^1.0.0
     url: ^1.0.0
-    nv_rexhelper: ^2.0.0
 

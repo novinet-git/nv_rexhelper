@@ -1,6 +1,6 @@
 <?php
 $yform = new rex_yform();
-$oForm = new nvRexHelper\Form(rex_var::toArray("REX_VALUE[1]")[0], "nv_contact_requests", $yform, "");
+$oForm = new nvRexHelper\Form(rex_var::toArray("REX_VALUE[1]")[0], $yform);
 
 if (rex::isBackend()) {
     $oForm->getBackendOutput();
@@ -30,13 +30,11 @@ if (!$form) {
 }
 ?>
 
-<fullscreenmodule class="nv-module-contact-form">
-    <container>
-        <row>
-            <div class="col-12 col-lg-8 mb-5 mb-lg-0">
-                <?= $form ?>
-                <p>Alle mit einem * gekennzeichneten Felder sind Pflichtfelder</p>
-            </div>
-        </row>
-    </container>
-</fullscreenmodule>
+<div class="nv-module-contact-form container">
+    <div class="row">
+        <div class="col-lg-8">
+            <?= $form ?>
+            <p>Alle mit einem * gekennzeichneten Felder sind Pflichtfelder</p>
+        </div>
+    </div>
+</div>

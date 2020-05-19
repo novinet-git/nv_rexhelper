@@ -13,7 +13,7 @@ class Form {
     private $debug;
     private $redirectMode;
 
-    public function __construct($data, $tableName, $yform, $form_action="") {
+    public function __construct($data, $yform, $form_action="") {
         $oSql = \rex_sql::factory();
         $oSql->setQuery('select * from ' . \rex::getTablePrefix() . 'yform_email_template WHERE name = "'.$data["template"].'" Limit 1');
         $oSql->getRows();
@@ -21,7 +21,7 @@ class Form {
         $this->senderEmail = $data["mail_from"] ? $data["mail_from"] : $oSql->getValue("mail_from");
         $this->senderName = $data["mail_from_name"] ? $data["mail_from_name"] : $oSql->getValue("mail_from_name");
         $this->mailTo = $data["mail_to"];
-        $this->tableName = $tableName;
+        $this->tableName = $data["tableName"];
         $this->templateName = $oSql->getValue("name");
         $this->successPage = $data["REX_LINK_1"];
         $this->redirectMode = $data["redirectMode"] ? false : true;
@@ -67,25 +67,45 @@ class Form {
 
         if ($debug) { 
             echo '<p>YForm E-Mail-Template "'.htmlspecialchars($this->templateName).'" wurde gefunden.'; 
-            echo '<hr /><pre>'; var_dump($yform_email_template); echo '</pre><hr />';
+            \dump($yform_email_template);
         }
         
         $yform_email_template = \rex_yform_email_template::replaceVars($yform_email_template, $values);
 
+        $yform_email_template['attachments'] = [];
+
+        // Hänge die Anhänge die im E-Mail Template spezifiziert sind an
+        // Wird von string in array convertiert
+        // damit später Dateien im Formular an das Gesamte array angehängt werden können
+
         if ($yform_email_template['attachments'] != '') {
-            $f = explode(',', $yform_email_template['attachments']);
-            $yform_email_template['attachments'] = array();
-            foreach ($f as $v) {
-                $yform_email_template['attachments'][] = array('name' => $v, 'path' => \rex_path::media($v));
+            
+            $files = explode(',', $yform_email_template['attachments']);
+            
+            foreach ($files as $file) {
+                $yform_email_template['attachments'][] = [
+                    'name' => $file, 
+                    'path' => \rex_path::media($files)
+                ];
             }
-        } else {
-            $yform_email_template['attachments'] = array();
+
         }
 
-        if (isset($yform->objparams['value_pool']['email_attachments']) && is_array($yform->objparams['value_pool']['email_attachments'])) {
-            \dump($yform->objparams['value_pool']['email_attachments']);
-            foreach ($yform->objparams['value_pool']['email_attachments'] as $v) {
-                $yform_email_template['attachments'][] = ['name' => $v[0], 'path' => \rex_path::pluginData($yform,'manager').'upload/frontend/'.$values["ID"]."_".$v[0]];
+        // Hänge Dateien die über Yform Upload Field im Formular sind als
+        // Anhänge an die E-Mail
+        $files = $yform->objparams['value_pool']['files'];
+
+        if (isset($files) && is_array($files)) {
+
+            if ($debug) \dump($files);
+
+            foreach ($files as $file) {
+                $path = \rex_path::pluginData("yform", 'manager') . 'upload/frontend/' . $values["ID"] . "_" . $file[0];
+
+                $yform_email_template['attachments'][] = [
+                    'name' => $file[0], 
+                    'path' => $path
+                ];
             }
         }
 
@@ -98,35 +118,35 @@ class Form {
         $oItem->mail_to = $yform_email_template['mail_to'];
         $oItem->save();
 
-        if ($debug) {
-            echo '<hr /><pre>'; 
-            var_dump($yform_email_template); 
-            echo '</pre><hr />';
-        }
+        if ($debug) \dump($yform_email_template);
 
         $oItem->email_log = print_r($yform_email_template,1);
 
-    
+        // sende die email
         if (!\rex_yform_email_template::sendMail($yform_email_template, $yform_email_template["name"])) {
-            if ($debug) { echo 'E-Mail konnte nicht gesendet werden.'; }
+          
+            // Behandle Fehler
+            if ($debug) { echo '<h1>E-Mail konnte nicht gesendet werden.</h1>'; }
+           
             $oItem->sent = "Nein";
             $oItem->save();
             return false;
 
         } else {
+
+            // Behandle Success
             $oItem->sent = "Ja";
             $oItem->save();
+           
             if ($debug) { 
-                echo 'E-Mail erfolgreich gesendet.'; 
+                echo '<h1>E-Mail erfolgreich gesendet.</h1>'; 
             } else if ($this->redirectMode == true) {
-                rex_redirect($this->successPage, \rex_clang::getCurrentId());
+                \rex_redirect($this->successPage, \rex_clang::getCurrentId());
             } 
 
             return true;
         }
           
-
-       
     }
 
     public function getBackendOutput() { ?>
@@ -137,6 +157,8 @@ class Form {
             <li class="list-group-item"><?=$this->redirectMode ? "Ja" : "Nein"?></li>
             <li class="list-group-item"><strong>E-Mail-Template</strong></li>
             <li class="list-group-item"><?=$this->templateName?></li>
+            <li class="list-group-item"><strong>Tabelle</strong></li>
+            <li class="list-group-item"><?=$this->tableName?></li>
             <li class="list-group-item"><strong>Empfänger E-Mail</strong></li>
             <li class="list-group-item"><?=$this->mailTo?></li>  
             <li class="list-group-item"><strong>Betreff</strong></li>
@@ -155,14 +177,26 @@ class Form {
         $aArr = array();
         $oSql = \rex_sql::factory();
         $oSql->setQuery('select * from ' . \rex::getTablePrefix() . 'yform_email_template ORDER BY name ASC');
-        for($i=0; $i<$oSql->getRows(); $i++)
-        {
+       
+        for($i=0; $i<$oSql->getRows(); $i++) {
             $aArr[$oSql->getValue("name")] = $oSql->getValue("name")." (Betreff: ".$oSql->getValue("subject")." | Absender E-Mail: ".$oSql->getValue("mail_from")." | Absender Name: ".$oSql->getValue("mail_from_name").")";
             $oSql->next();
         }
+
+        $aTables = [];
+        $sql = \rex_sql::factory();
+        $query = "SELECT * FROM rex_yform_table WHERE status='1'";
+        $sql->setQuery($query);
+
+        while ($sql->getRow()) {
+            $aTables[$sql->getValue("table_name")] = $sql->getValue("name");
+            $sql->next();
+        }
+
         $mform->addSelectField("$id.0.debug",["Nein", "Ja"], ["Debug Modus"]);
         $mform->addSelectField("$id.0.redirectMode",["Ja", "Nein"], ["Automatische Weiterleitung zur Erfolgsseite?"]);
         $mform->addSelectField("$id.0.template", $aArr, ["label" => "E-Mail-Template"]);
+        $mform->addSelectField("$id.0.tableName", $aTables, ["Tabelle"]);
         $mform->addTextField("$id.0.mail_to", ["label" => "Empfänger E-Mail"]);
         $mform->addTextField("$id.0.subject", ["label" => "Abweichender Betreff E-Mail (Optional, sonst Standardwert aus E-Mail-Template)"]);
         $mform->addTextField("$id.0.mail_from", ["label" => "Abweichender Absender E-Mail (Optional, sonst Standardwert aus E-Mail-Template)"]);

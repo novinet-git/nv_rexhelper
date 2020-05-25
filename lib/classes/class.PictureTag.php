@@ -2,7 +2,8 @@
 
 namespace nvRexHelper;
 
-class PictureTag {
+class PictureTag 
+{
 
     /**
      * generate a picture tag to a given media
@@ -13,9 +14,12 @@ class PictureTag {
      * @return string
      */
 
-    public static function generate($media, $attributes=[]) {
+    public static function generate($media, $attributes=[]) 
+    {
         $attr = "";
-        foreach($attributes as $key => $value) {
+
+        foreach($attributes as $key => $value) 
+        {
             $attr .= $key .'="'. $value .'" '; 
         }
 
@@ -41,16 +45,14 @@ class PictureTag {
      * @return string
      */
 
-    public static function generateLazy($media, $attributes=[]) {
-
-        if (!isset($attributes["class"])) {
-            $attributes["class"] = "lazy";
-        } else {
-            $attributes["class"] .= " lazy";
-        }
+    public static function generateLazy($media, $attributes=[]) 
+    {
+        $attributes["class"] = !isset($attributes["class"]) ? "lazy" : " lazy";
 
         $attr = "";
-        foreach($attributes as $key => $value) {
+
+        foreach($attributes as $key => $value) 
+        {
             $attr .= $key .'="'. $value .'" '; 
         }
 
@@ -76,7 +78,8 @@ class PictureTag {
      * @return string
      */
 
-    public static function generateBackgroundTag($media, $selector) {
+    public static function generateBackgroundTag($media, $selector) 
+    {
         $return = "<style scoped>";
         $return .= $selector . "{background-image: url('" . MEDIA . $media . "');}";
         $return .= "@media (max-width: 991px) {".$selector."{background-image: url('" . MEDIA . "max_width_lg/" . $media . "');}}";

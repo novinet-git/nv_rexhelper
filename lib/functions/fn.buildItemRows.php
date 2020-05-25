@@ -16,7 +16,8 @@ namespace nvRexHelper;
  * @return array
  */
 
-function BuildItemRows ($items, $maxItems=0) {
+function BuildItemRows ($items, $maxItems=0) 
+{
     $result = [];
     $currentRow = [];
     $currentItemCount = 0;
@@ -24,21 +25,22 @@ function BuildItemRows ($items, $maxItems=0) {
 
     if (empty($items) || $maxItems <= 0) return $items;
 
-    foreach ($items as $key => $value):
-
+    foreach ($items as $key => $value)
+    {
         $currentRow[$key] = $value;
-
         $currentItemCount++;
 
-        if ($currentItemCount >= $maxItems) {
+        if ($currentItemCount >= $maxItems) 
+        {
             $result[] = $currentRow;
             $currentRow = [];
             $currentItemCount = 0;
         }
 
-    endforeach;
+    }
 
-    if (!empty($currentRow)) {
+    if (!empty($currentRow)) 
+    {
         $result[] = $currentRow;
     }
 

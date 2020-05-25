@@ -2,11 +2,15 @@
 
 namespace nvRexHelper;
 
-function redirect($context, $clangId=null) {
-    if($id = intval($context)) {
+function redirect($context, $clangId=null) 
+{
+	if($id = intval($context)) 
+	{
 		$clangId = $clangId ?: \rex_clang::getCurrentId();
 		$url = \rex_getUrl($id, $clangId);
-	} else {
+	} 
+	else 
+	{
 		$url = $context;
 	}
 	

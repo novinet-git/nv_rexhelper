@@ -14,8 +14,8 @@ namespace nvRexHelper;
  * 
  * @return array
  */
-function BuildItemCols($items, $colsAmount) {
-
+function BuildItemCols($items, $colsAmount) 
+{
     $result = [];
     $colsAmount = intval($colsAmount);
     $length = count($items);
@@ -32,24 +32,24 @@ function BuildItemCols($items, $colsAmount) {
     $itemsAmount = floor($div);
 
     // build
-    for ($i = 0; $i < $colsAmount; $i++):
-        
+    for ($i = 0; $i < $colsAmount; $i++)
+    {
         $innerResult = [];
 
-        for ($j = $itemsAmount; $j >= 1; $j--) {
-
+        for ($j = $itemsAmount; $j >= 1; $j--) 
+        {
             $innerResult[] = array_shift($items);
-
         }
 
-        if ($leftOver > 0) {
+        if ($leftOver > 0) 
+        {
             $leftOver--;
             $innerResult[] = array_shift($items);
         }
 
         $result[] = $innerResult;
 
-    endfor;
+    }
 
     return $result;
  

@@ -2,7 +2,8 @@
 
 namespace nvRexHelper;
 
-class Layer {
+class Layer 
+{
 
     /**
      * the select options
@@ -42,7 +43,8 @@ class Layer {
      * @return bool
      */
 
-    public static function AddSelect ($mform, $id=null) {
+    public static function AddSelect ($mform, $id=null) 
+    {
         if (!$id) return false;
 
         $options = self::OPTIONS;
@@ -60,7 +62,8 @@ class Layer {
      * @return string
      */
 
-    public static function GetLayer ($item) {
+    public static function GetLayer ($item) 
+    {
         $result = "";
 
         $value = $item[self::KEY] ?: self::DEFAULT;

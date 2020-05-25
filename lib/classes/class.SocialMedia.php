@@ -2,8 +2,8 @@
 
 namespace nvRexHelper;
 
-class SocialMedia {
-
+class SocialMedia 
+{
     /**
      * get the meta tags for social media, e.g. the meta image, title for facebook and twitter
      * 
@@ -12,20 +12,23 @@ class SocialMedia {
      * 
      * @return string
      */
-    public static function getMetaTags ($urlSeo, $image=null) {
-
+    public static function getMetaTags ($urlSeo, $image=null) 
+    {
         $content = '';
 
-        if ($title = $urlSeo->getTitle()) {
+        if ($title = $urlSeo->getTitle()) 
+        {
             $content .= '<meta property="og:title" content="' . $title . '">' . PHP_EOL;
             $content .= '<meta property="og:site_name" content="' . $title . '">' . PHP_EOL;
         }
 
-        if ($description = $urlSeo->getDescription()) {
+        if ($description = $urlSeo->getDescription()) 
+        {
             $content .= '<meta property="og:description" content="' . $description . '">' . PHP_EOL;
         }
 
-        if ($image) {
+        if ($image) 
+        {
             $content .= '<meta property="og:image" content="' . $image . '">' . PHP_EOL;
         }
         

@@ -1,8 +1,8 @@
 <?php
 namespace nvRexHelper;
 
-class Form {
-    
+class Form 
+{
     public $tableName;
     private $subject;
     private $senderEmail;
@@ -13,7 +13,8 @@ class Form {
     private $debug;
     private $redirectMode;
 
-    public function __construct($data, $yform, $form_action="") {
+    public function __construct($data, $yform, $form_action="") 
+    {
         $oSql = \rex_sql::factory();
         $oSql->setQuery('select * from ' . \rex::getTablePrefix() . 'yform_email_template WHERE name = "'.$data["template"].'" Limit 1');
         $oSql->getRows();
@@ -37,7 +38,8 @@ class Form {
 
         $debug = $data["debug"];
 
-        if(!$debug) {
+        if(!$debug) 
+        {
             // Spam Protection -> dazu muss Addon yform_spam_protection installiert sein
             $yform->setValueField('spam_protection', array("honeypot","Bitte nicht ausfüllen.","Ihre Anfrage wurde als Spam erkannt und gelöscht. Bitte versuchen Sie es in einigen Minuten erneut oder wenden Sie sich persönlich an uns.", 0));
         }
@@ -47,7 +49,8 @@ class Form {
         $this->debug = $debug;
     }
 
-    public function sendMail($yform) {
+    public function sendMail($yform) 
+    {
 
         // Ab hier beginnen die Vorbereitungen zum E-Mail-Versand
         $yform_email_template_key = $this->templateName; // Key, wie im Backend unter YForm > E-Mail-Templates hinterlegt
@@ -60,12 +63,14 @@ class Form {
         #$values['custom'] = 'Eigener Platzhalter';
 
         $yform_email_template = \rex_yform_email_template::getTemplate($yform_email_template_key);
-        if (!$yform_email_template && $debug) {
+        if (!$yform_email_template && $debug) 
+        {
             echo '<p>YForm E-Mail-Template "'.htmlspecialchars($this->templateName).'" wurde nicht gefunden.';
             return;
         }
 
-        if ($debug) { 
+        if ($debug) 
+        { 
             echo '<p>YForm E-Mail-Template "'.htmlspecialchars($this->templateName).'" wurde gefunden.'; 
             \dump($yform_email_template);
         }
@@ -78,11 +83,13 @@ class Form {
         // Wird von string in array convertiert
         // damit später Dateien im Formular an das Gesamte array angehängt werden können
 
-        if ($yform_email_template['attachments'] != '') {
+        if ($yform_email_template['attachments'] != '') 
+        {
             
             $files = explode(',', $yform_email_template['attachments']);
             
-            foreach ($files as $file) {
+            foreach ($files as $file) 
+            {
                 $yform_email_template['attachments'][] = [
                     'name' => $file, 
                     'path' => \rex_path::media($files)
@@ -95,11 +102,13 @@ class Form {
         // Anhänge an die E-Mail
         $files = $yform->objparams['value_pool']['files'];
 
-        if (isset($files) && is_array($files)) {
+        if (isset($files) && is_array($files)) 
+        {
 
             if ($debug) \dump($files);
 
-            foreach ($files as $file) {
+            foreach ($files as $file) 
+            {
                 $path = \rex_path::pluginData("yform", 'manager') . 'upload/frontend/' . $values["ID"] . "_" . $file[0];
 
                 $yform_email_template['attachments'][] = [
@@ -123,7 +132,8 @@ class Form {
         $oItem->email_log = print_r($yform_email_template,1);
 
         // sende die email
-        if (!\rex_yform_email_template::sendMail($yform_email_template, $yform_email_template["name"])) {
+        if (!\rex_yform_email_template::sendMail($yform_email_template, $yform_email_template["name"])) 
+        {
           
             // Behandle Fehler
             if ($debug) { echo '<h1>E-Mail konnte nicht gesendet werden.</h1>'; }
@@ -132,15 +142,20 @@ class Form {
             $oItem->save();
             return false;
 
-        } else {
+        } 
+        else 
+        {
 
             // Behandle Success
             $oItem->sent = "Ja";
             $oItem->save();
            
-            if ($debug) { 
+            if ($debug) 
+            { 
                 echo '<h1>E-Mail erfolgreich gesendet.</h1>'; 
-            } else if ($this->redirectMode == true) {
+            } 
+            else if ($this->redirectMode == true) 
+            {
                 \rex_redirect($this->successPage, \rex_clang::getCurrentId());
             } 
 
@@ -149,7 +164,8 @@ class Form {
           
     }
 
-    public function getBackendOutput() { ?>
+    public function getBackendOutput() 
+    { ?>
         <ul class="list-group">
             <li class="list-group-item"><strong>Debug Modus</strong></li>
             <li class="list-group-item"><?=$this->debug ? "Ja" : "Nein"?></li>
@@ -173,12 +189,14 @@ class Form {
         <?php
     }
 
-    public static function getInput($id, $mform) {
+    public static function getInput($id, $mform) 
+    {
         $aArr = array();
         $oSql = \rex_sql::factory();
         $oSql->setQuery('select * from ' . \rex::getTablePrefix() . 'yform_email_template ORDER BY name ASC');
        
-        for($i=0; $i<$oSql->getRows(); $i++) {
+        for($i=0; $i<$oSql->getRows(); $i++) 
+        {
             $aArr[$oSql->getValue("name")] = $oSql->getValue("name")." (Betreff: ".$oSql->getValue("subject")." | Absender E-Mail: ".$oSql->getValue("mail_from")." | Absender Name: ".$oSql->getValue("mail_from_name").")";
             $oSql->next();
         }
@@ -188,7 +206,8 @@ class Form {
         $query = "SELECT * FROM rex_yform_table WHERE status='1'";
         $sql->setQuery($query);
 
-        while ($sql->getRow()) {
+        while ($sql->getRow()) 
+        {
             $aTables[$sql->getValue("table_name")] = $sql->getValue("name");
             $sql->next();
         }

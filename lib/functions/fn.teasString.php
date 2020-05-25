@@ -11,7 +11,8 @@ namespace nvRexHelper;
  * @return string
  */
 
-function teasString ($string = "", $limit = 0) {
+function teasString ($string = "", $limit = 0) 
+{
 
 	/**
 	 * @var string $result

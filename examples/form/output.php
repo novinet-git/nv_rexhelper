@@ -2,7 +2,8 @@
 $yform = new rex_yform();
 $oForm = new nvRexHelper\Form(rex_var::toArray("REX_VALUE[1]")[0], $yform);
 
-if (rex::isBackend()) {
+if (rex::isBackend()) 
+{
     $oForm->getBackendOutput();
     return;
 }
@@ -24,7 +25,8 @@ $yform->setValueField('submit', array('submit', 'Abschicken', '', 'no_db'));
 
 $form = $yform->getForm();
 
-if (!$form) {
+if (!$form) 
+{
     $oForm->sendMail($yform);
     return;
 }

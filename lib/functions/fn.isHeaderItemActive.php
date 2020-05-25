@@ -4,7 +4,7 @@ namespace nvRexHelper;
 
 
 /**
- * check if a header category/article is active
+ * check if a header category/article ($id) is active
  * these items should be in the root directory
  * 
  * @param number $id

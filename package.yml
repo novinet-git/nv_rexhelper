@@ -4,16 +4,16 @@ author: 'novinet GmbH & Co KG'
 supportpage: https://novinet.de
 
 requires:
-    redaxo: '^5.5'
+    redaxo: '>=5.5'
     php:
-        version: '^7.0'
+        version: '>=7.0'
     packages:
-        yform: '^1.0.0'
-        yform_spam_protection: '^1.0.0'
-        mform: '^1.0.0'
-        mblock: '^1.0.0'
-        developer: '^1.0.0'
-        cke5: '^1.0.0'
-        url: '^1.0.0'
-        nv_domainsettings: '^1.0.0'
+        yform: '>=1.0.0'
+        yform_spam_protection: '>=1.0.0'
+        mform: '>=1.0.0'
+        mblock: '>=1.0.0'
+        developer: '>=1.0.0'
+        cke5: '>=1.0.0'
+        url: '>=1.0.0'
+        nv_domainsettings: '>=1.0.0'
 

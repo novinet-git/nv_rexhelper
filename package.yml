@@ -1,17 +1,19 @@
 package: nv_rexhelper
 version: '2.1.0'
-author: novinet GmbH & Co KG
+author: 'novinet GmbH & Co KG'
 supportpage: https://novinet.de
 
 requires:
+    redaxo: '^5.5'
     php:
-        version: '>=5.6' # benötigt mindestens PHP 5.6
-    yform: ^1.0.0
-    yform_spam_protection: ^1.0.0
-    mform: ^1.0.0
-    mblock: ^1.0.0
-    developer: ^1.0.0
-    cke5: ^1.0.0
-    url: ^1.0.0
-    nv_domainsettings: ^1.0.0
+        version: '^7.0'
+    packages:
+        yform: '^1.0.0'
+        yform_spam_protection: '^1.0.0'
+        mform: '^1.0.0'
+        mblock: '^1.0.0'
+        developer: '^1.0.0'
+        cke5: '^1.0.0'
+        url: '^1.0.0'
+        nv_domainsettings: '^1.0.0'
 

@@ -2,7 +2,6 @@
 
 namespace nvRexHelper;
 
-
 /**
  * check if a header category/article ($id) is active
  * these items should be in the root directory
@@ -21,9 +20,9 @@ function isHeaderItemActive($id)
     if ($currentId == $id) return true;
 
     // check deeper articles
-    $root = \rex_category::get(\nvDomainSettings::getValue("id"));
-    $rootId = $root->getValue("id");
-    $rootCategories = $root->getChildren();
+    $rootId = \nvDomainSettings::getValue("id");
+    $root = \rex_category::get($rootId);
+    $rootCategories = $root ? $root->getChildren() : \rex_category::getRootCategories();
 
     // find out which root category is the context
     $categoryId = 0;

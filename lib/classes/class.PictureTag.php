@@ -2,8 +2,7 @@
 
 namespace nvRexHelper;
 
-class PictureTag 
-{
+class PictureTag {
 
     /**
      * generate a picture tag to a given media
@@ -14,15 +13,15 @@ class PictureTag
      * @return string
      */
 
-    public static function generate($media, $attributes=[]) 
-    {
+    public static function generate($media, $attributes=[]) {
         $attr = "";
-
-        foreach($attributes as $key => $value) 
-        {
+        foreach($attributes as $key => $value) {
             $attr .= $key .'="'. $value .'" '; 
         }
 
+        $media_object = \rex_media::get($media);
+        $description = $media_object->getValue("med_description");
+    
         $return = '<picture>';
 
         $srcSM = MEDIA . 'max_width_sm/' . $media;
@@ -31,7 +30,17 @@ class PictureTag
        
         $return .= '<source media="(max-width: 575px)" srcset="'.$srcSM.'">';
         $return .= '<source media="(max-width: 991px)" srcset="'.$srcLG.'">';
-        $return .= '<img '.$attr.' src="'.$src.'">';
+
+        if ($description)
+        {
+            $return .= '<img '.$attr.' src="'.$src.'" alt="' . $description . '">';
+        }
+        else 
+        {
+            $return .= '<img '.$attr.' src="'.$src.'">';
+        }
+
+      
 
         return $return . '</picture>';
     }
@@ -45,14 +54,19 @@ class PictureTag
      * @return string
      */
 
-    public static function generateLazy($media, $attributes=[]) 
-    {
-        $attributes["class"] = !isset($attributes["class"]) ? "lazy" : " lazy";
+    public static function generateLazy($media, $attributes=[]) {
+
+        if (!isset($attributes["class"])) {
+            $attributes["class"] = "lazy";
+        } else {
+            $attributes["class"] .= " lazy";
+        }
+
+        $media_object = \rex_media::get($media);
+        $description = $media_object->getValue("med_description");
 
         $attr = "";
-
-        foreach($attributes as $key => $value) 
-        {
+        foreach($attributes as $key => $value) {
             $attr .= $key .'="'. $value .'" '; 
         }
 
@@ -64,7 +78,16 @@ class PictureTag
        
         $return .= '<source media="(max-width: 575px)" data-srcset="'.$srcSM.'">';
         $return .= '<source media="(max-width: 991px)" data-srcset="'.$srcLG.'">';
-        $return .= '<img '.$attr.' data-src="'.$src.'">';
+
+        if ($description)
+        {
+            $return .= '<img '.$attr.' data-src="'.$src.'" alt="' . $description . '">';
+        }
+        else 
+        {
+            $return .= '<img '.$attr.' data-src="'.$src.'">';
+        }
+        
 
         return $return . '</picture>';
     }
@@ -78,8 +101,7 @@ class PictureTag
      * @return string
      */
 
-    public static function generateBackgroundTag($media, $selector) 
-    {
+    public static function generateBackgroundTag($media, $selector) {
         $return = "<style scoped>";
         $return .= $selector . "{background-image: url('" . MEDIA . $media . "');}";
         $return .= "@media (max-width: 991px) {".$selector."{background-image: url('" . MEDIA . "max_width_lg/" . $media . "');}}";

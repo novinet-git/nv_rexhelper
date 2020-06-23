@@ -29,6 +29,16 @@ class CustomLink
 				$this->href = rex_getUrl($sPath);
 				$this->target = "_self";
 			} 
+			/**
+			 * TO DO:
+			 * bessere lösung
+			 */
+			else if ($sPath[0] == "/")
+			{
+				// interne url mit get paramentern
+				$this->href = $sPath;
+				$this->target = "_self";
+			}
 			else 
 			{
 				// media

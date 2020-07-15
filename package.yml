@@ -15,5 +15,5 @@ requires:
         developer: '>=1.0.0'
         cke5: '>=1.0.0'
         url: '>=1.0.0'
-        nv_domainsettings: '>=1.0.0'
+        yrewrite_domain_settings: '>=1.0.0'
 

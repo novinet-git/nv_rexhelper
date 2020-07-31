@@ -206,10 +206,9 @@ class Form
         $query = "SELECT * FROM rex_yform_table WHERE status='1'";
         $sql->setQuery($query);
 
-        while ($sql->getRow()) 
+        foreach ($sql as $row) 
         {
-            $aTables[$sql->getValue("table_name")] = $sql->getValue("name");
-            $sql->next();
+            $aTables[$row->getValue("table_name")] = $row->getValue("name");
         }
 
         $mform->addSelectField("$id.0.debug",["Nein", "Ja"], ["Debug Modus"]);

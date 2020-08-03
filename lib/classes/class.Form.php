@@ -26,6 +26,8 @@ class Form
         $this->templateName = $oSql->getValue("name");
         $this->successPage = $data["REX_LINK_1"];
         $this->redirectMode = $data["redirectMode"] ? false : true;
+        $this->successParam = $data["successParam"] ? true : false;
+        $this->successAnchor = $data["successAnchor"] ?: "";
 
         if(!$form_action) $form_action = \rex_getUrl('REX_ARTICLE_ID');
 
@@ -158,6 +160,19 @@ class Form
             {
                 \rex_redirect($this->successPage, \rex_clang::getCurrentId());
             } 
+            else if ($this->successParam)
+            {
+                $url = \rex_getUrl(\rex_article::getCurrentId(), \rex_clang::getCurrentId(), ["success" => "true"]);
+
+                if ($this->successAnchor)
+                {
+                    $url .= '#' . $this->successAnchor;
+                }
+                
+                header("Location: " . $url);
+                exit();
+            }
+
 
             return true;
         }
@@ -173,6 +188,10 @@ class Form
             <li class="list-group-item"><?=$this->redirectMode ? "Ja" : "Nein"?></li>
             <li class="list-group-item"><strong>E-Mail-Template</strong></li>
             <li class="list-group-item"><?=$this->templateName?></li>
+            <li class="list-group-item"><strong>Erfrolgsparameter</strong></li>
+            <li class="list-group-item"><?=$this->successParam ? "Ja" : "Nein"?></li>
+            <li class="list-group-item"><strong>Erfrolgsanker</strong></li>
+            <li class="list-group-item"><?=$this->successAnchor ? "#" . $this->successAnchor : ""?></li>
             <li class="list-group-item"><strong>Tabelle</strong></li>
             <li class="list-group-item"><?=$this->tableName?></li>
             <li class="list-group-item"><strong>Empfänger E-Mail</strong></li>
@@ -184,7 +203,7 @@ class Form
             <li class="list-group-item"><strong>Absender Name</strong></li>
             <li class="list-group-item"><?=$this->senderName?></li>         
             <li class="list-group-item"><strong>Erfolgsseite</strong></li>
-            <li class="list-group-item"><?=rex_getUrl($this->successPage) ?></li>
+            <li class="list-group-item"><?=\rex_getUrl($this->successPage) ?></li>
         </ul>
         <?php
     }
@@ -208,12 +227,14 @@ class Form
 
         foreach ($sql as $row) 
         {
-            $aTables[$row->getValue("table_name")] = $row->getValue("name");
+            $aTables[$sql->getValue("table_name")] = $sql->getValue("name");
         }
 
         $mform->addSelectField("$id.0.debug",["Nein", "Ja"], ["Debug Modus"]);
         $mform->addSelectField("$id.0.redirectMode",["Ja", "Nein"], ["Automatische Weiterleitung zur Erfolgsseite?"]);
         $mform->addSelectField("$id.0.template", $aArr, ["label" => "E-Mail-Template"]);
+        $mform->addSelectField("$id.0.successParam", ["Nein", "Ja"], ["Erfolgsparameter?"]);
+        $mform->addTextField("$id.0.successAnchor", ["Erfolgs Anker"]);
         $mform->addSelectField("$id.0.tableName", $aTables, ["Tabelle"]);
         $mform->addTextField("$id.0.mail_to", ["label" => "Empfänger E-Mail"]);
         $mform->addTextField("$id.0.subject", ["label" => "Abweichender Betreff E-Mail (Optional, sonst Standardwert aus E-Mail-Template)"]);

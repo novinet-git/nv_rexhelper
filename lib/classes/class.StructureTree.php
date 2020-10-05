@@ -10,9 +10,10 @@ class StructureTree {
 
     public static $cache = [];
 
-    public static function factory(int $root_id): StructureTree {
-        if (!array_key_exists("$root_id", self::$cache)) {
-            self::$cache["$root_id"] = new self($root_id, [], "");
+    public static function factory(int $root_id, $filter=null): StructureTree {
+        if ($filter) return new self($root_id, [], "", $filter);
+        else if (!array_key_exists("$root_id", self::$cache)) {
+            self::$cache["$root_id"] = new self($root_id, [], "", $filter);
         } 
         return self::$cache["$root_id"];
     }
@@ -20,9 +21,13 @@ class StructureTree {
     private $tree = [];
     private $article_id_active = 0;
     private $active_path = "";
+    private $filter = null;
+    private $root_id = 0;
 
-    public function __construct(int $root_id, array $tree, string $active_path) {
+    public function __construct(int $root_id, array $tree, string $active_path, $filter=null) {
         $this->article_id_active = \rex_article::getCurrentId();
+        $this->filter = $filter;
+        $this->root_id = $root_id;
 
         if (!$tree) {
             if (!$root_category = \rex_category::get($root_id)) throw new \rex_exception("given id $root_id is not a category");
@@ -48,7 +53,12 @@ class StructureTree {
     */
 
     public function get_sub_tree(int $root_id): StructureTree {
-        if (!\array_key_exists("$root_id", self::$cache)) {
+        if ($this->filter) {
+            $tree = $this->get_sub_tree_rec($this->get_tree(), $root_id); 
+            if (!$tree) throw new \rex_exeption("couldn't find subtree, please check your code");
+            return new self($root_id, $tree, $this->active_path);
+        }
+        else if (!\array_key_exists("$root_id", self::$cache)) {
             $tree = $this->get_sub_tree_rec($this->get_tree(), $root_id); 
             if (!$tree) throw new \rex_exeption("couldn't find subtree, please check your code");
             self::$cache["$root_id"] = new self($root_id, $tree, $this->active_path);
@@ -57,12 +67,36 @@ class StructureTree {
         return self::$cache["$root_id"];
     }
 
+
+    /**
+    ** add a filter afterwards, returns a new instance
+    */
+
+    public function filter($filter): StructureTree {
+        $tree = $this->filter_tree_rec($this->tree, $filter);
+        if(!$tree) throw new \rex_exception("something went wrong filtering the tree");
+        return new self($this->root_id, $tree, $this->active_path, $filter);
+    }
+
+    private function filter_tree_rec($item, $filter) {
+        foreach ($item as &$category) {
+            $category["articles"] = array_filter($category["articles"], $filter);
+            $category["categories"] = $this->filter_tree_rec($category["categories"], $filter);
+        }
+
+        return $item;
+    }
+
+    /**
+    ** running through the tree recursivly
+    */
+
     private function get_sub_tree_rec(array $item, int $search): array {
         if (\array_key_exists($search, $item)) return ["$search" => $item[$search]];
         
         foreach($item as $child) {
-            if ($child["children"]) {
-                return $this->get_sub_tree_rec($child["children"], $search);
+            if ($child["categories"]) {
+                return $this->get_sub_tree_rec($child["categories"], $search);
             }
         }
 
@@ -74,37 +108,41 @@ class StructureTree {
     */
 
     private function get_structure_tree_rec(\rex_category $category, int $depth): array {
-        $children_depth = $depth + 1;
+        $categories_depth = $depth + 1;
         $articles = [];
-        $children = [];
+        $categories = [];
 
-        foreach ($category->getArticles() as $child) {
-            $id = $child->getId();
+        foreach ($category->getArticles() as $article) {
+            $id = $article->getId();
             $active = false;
 
             if ($id == $this->article_id_active) {
                 $active = true;
-                $this->active_path = $child->getValue("path") . "$id|";
+                $this->active_path = $article->getValue("path") . "$id|";
             }
 
             $articles["$id"] = [
                 "active" => $active,
+                "status" => $article->getValue("status") ? true : false,
                 "depth" => $depth,
-                "article" => $child,
+                "data" => $article,
             ];
         }
 
-        foreach($category->getChildren() as $child) {
-            $id = $child->getId();
-            $children["$id"] = $this->get_structure_tree_rec($child, $children_depth);
+        if (\is_callable($this->filter)) $articles = \array_filter($articles, $this->filter);
+    
+
+        foreach($category->getChildren() as $item) {
+            $id = $item->getId();
+            $categories["$id"] = $this->get_structure_tree_rec($item, $categories_depth);
         }
 
         return [
             "active" => false,
             "depth" => $depth,
-            "category" => $category,
+            "data" => $category,
             "articles" => $articles,
-            "children" => $children,
+            "categories" => $categories,
         ];
     }
 
@@ -120,7 +158,7 @@ class StructureTree {
             if (!\array_key_exists($key, $tree)) break;
             $tree = &$tree[$key];
             $tree["active"] = true; 
-            $tree = &$tree["children"];
+            $tree = &$tree["categories"];
         }
     }
 }

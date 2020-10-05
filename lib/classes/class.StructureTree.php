@@ -4,6 +4,8 @@ namespace nvRexHelper;
 
 class StructureTree {
 
+    // -- static functions ---
+
     /**
     ** Handling Structure Tree with cache, since recursive tree is heavily compution
     */
@@ -17,6 +19,8 @@ class StructureTree {
         } 
         return self::$cache["$root_id"];
     }
+
+    // -- class memebers and constructor ---
 
     private $tree = [];
     private $article_id_active = 0;
@@ -39,6 +43,8 @@ class StructureTree {
         }
 
     }
+
+    // -- public functions ---
 
     /**
     ** get the tree array
@@ -92,6 +98,18 @@ class StructureTree {
 
         $this->tree = $this->remove_empty_branches_rec($tree);
     }
+
+    /**
+    ** combines the filter and reduce methods
+    */
+
+    public function filter_and_reduce($filer): StructureTree {
+        $tree = $this->filter($filer);
+        $tree->reduce();
+        return $tree;
+    }
+
+    // --- private functions ----
 
     private function are_all_top_level_categories_empty(array $categories): bool {
         foreach($categories as $category) {

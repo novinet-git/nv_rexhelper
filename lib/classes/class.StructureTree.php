@@ -54,13 +54,13 @@ class StructureTree {
 
     public function get_sub_tree(int $root_id): StructureTree {
         if ($this->filter) {
-            $tree = $this->get_sub_tree_rec($this->get_tree(), $root_id); 
-            if (!$tree) throw new \rex_exeption("couldn't find subtree, please check your code");
+            $tree = $this->get_sub_tree_rec($this->get_array(), $root_id); 
+            if (!$tree) throw new \rex_exception("couldn't find subtree, please check your code");
             return new self($root_id, $tree, $this->active_path);
         }
         else if (!\array_key_exists("$root_id", self::$cache)) {
-            $tree = $this->get_sub_tree_rec($this->get_tree(), $root_id); 
-            if (!$tree) throw new \rex_exeption("couldn't find subtree, please check your code");
+            $tree = $this->get_sub_tree_rec($this->get_array(), $root_id); 
+            if (!$tree) throw new \rex_exception("couldn't find subtree, please check your code");
             self::$cache["$root_id"] = new self($root_id, $tree, $this->active_path);
         }
 
@@ -78,12 +78,76 @@ class StructureTree {
         return new self($this->root_id, $tree, $this->active_path, $filter);
     }
 
+    /**
+    ** reduce the tree structure, works kinda like trim whitespaces from the 
+    ** start and the end
+    */
+
+    public function reduce() {
+        $tree = $this->tree;
+
+        while($this->are_all_top_level_categories_empty($tree)) {
+            $tree = $this->remove_top_level($tree);
+        }
+
+        $this->tree = $this->remove_empty_branches_rec($tree);
+    }
+
+    private function are_all_top_level_categories_empty(array $categories): bool {
+        foreach($categories as $category) {
+            if ($category["articles"]) return false;
+        }
+        return true;
+    }
+
+    private function remove_top_level(array $categories): array {
+        $second_level_categories = [];
+
+        foreach($categories as $top_level_categories) {
+            foreach($top_level_categories["categories"] as $key => $cat) {
+                $second_level_categories[$key] = $cat;
+            }
+        }
+        return $second_level_categories;
+    }
+
+    private function remove_empty_branches_rec(array $categories): array {
+        $reduced_categories = [];
+       
+        foreach($categories as $key => $cat) { 
+            if(!$this->is_branch_empty($cat)) {
+                $reduced_categories[$key] = $cat;
+            }
+        }
+
+        $categories = $reduced_categories;
+        $reduced_categories = [];
+        foreach($categories as $key => $cat) {
+            if($cat["categories"]) {
+                $cat["categories"] = $this->remove_empty_branches_rec($cat["categories"]);
+            }
+            $reduced_categories[$key] = $cat;
+        }
+       
+        return $reduced_categories;
+    }
+
+    private function is_branch_empty(array $category): bool {
+        if ($category["articles"]) return false;
+        $is_empty = true;
+
+        foreach ($category["categories"] as $key => $cat) {
+            if (!$this->is_branch_empty($cat)) $is_empty = false;
+        }
+      
+        return $is_empty;
+    }
+
     private function filter_tree_rec($item, $filter) {
         foreach ($item as &$category) {
             $category["articles"] = array_filter($category["articles"], $filter);
             $category["categories"] = $this->filter_tree_rec($category["categories"], $filter);
         }
-
         return $item;
     }
 
@@ -91,16 +155,20 @@ class StructureTree {
     ** running through the tree recursivly
     */
 
-    private function get_sub_tree_rec(array $item, int $search): array {
-        if (\array_key_exists($search, $item)) return ["$search" => $item[$search]];
+    private function get_sub_tree_rec(array $categories, int $search): array {
+        if (\array_key_exists($search, $categories)) return ["$search" => $categories[$search]];
         
-        foreach($item as $child) {
-            if ($child["categories"]) {
-                return $this->get_sub_tree_rec($child["categories"], $search);
+        $sub_tree = [];
+
+        foreach($categories as $category) {
+            if ($category["categories"]) {
+                if($item = $this->get_sub_tree_rec($category["categories"], $search)) {
+                    $sub_tree = $item;
+                }
             }
         }
 
-        return [];
+        return $sub_tree;
     }
 
     /**

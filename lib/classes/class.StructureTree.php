@@ -69,10 +69,9 @@ class StructureTree {
             if (!$tree) throw new \rex_exception("couldn't find subtree, please check your code");
             self::$cache["$root_id"] = new self($root_id, $tree, $this->active_path);
         }
-
+        
         return self::$cache["$root_id"];
     }
-
 
     /**
     ** add a filter afterwards, returns a new instance
@@ -91,7 +90,8 @@ class StructureTree {
 
     public function reduce() {
         $tree = $this->tree;
-
+        
+        $i = 0;
         while($this->are_all_top_level_categories_empty($tree)) {
             $tree = $this->remove_top_level($tree);
         }
@@ -112,6 +112,7 @@ class StructureTree {
     // --- private functions ----
 
     private function are_all_top_level_categories_empty(array $categories): bool {
+        if(!$categories) return false;
         foreach($categories as $category) {
             if ($category["articles"]) return false;
         }
@@ -120,12 +121,13 @@ class StructureTree {
 
     private function remove_top_level(array $categories): array {
         $second_level_categories = [];
-
+      
         foreach($categories as $top_level_categories) {
             foreach($top_level_categories["categories"] as $key => $cat) {
                 $second_level_categories[$key] = $cat;
             }
         }
+        
         return $second_level_categories;
     }
 

@@ -20,7 +20,14 @@ function isHeaderItemActive($id)
     if ($currentId == $id) return true;
 
     // check deeper articles
-    $rootId = \nvDomainSettings::getValue("id");
+
+    // fallback for older installations
+    if(\class_exists("nvDomainSettings")) {
+        $rootId = \nvDomainSettings::getValue("id");
+    } else {
+        $rootId = \yrewrite_domain_settings::getValue("id");
+    }
+    
     $root = \rex_category::get($rootId);
     $rootCategories = $root ? $root->getChildren() : \rex_category::getRootCategories();
 

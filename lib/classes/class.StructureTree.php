@@ -34,9 +34,14 @@ class StructureTree {
         $this->root_id = $root_id;
 
         if (!$tree) {
-            if (!$root_category = \rex_category::get($root_id)) throw new \rex_exception("given id $root_id is not a category");
-            $this->tree["$root_id"] = $this->get_structure_tree_rec($root_category, 0);
-            $this->set_active_structure($this->tree, $this->active_path);
+            if($root_id == 0) {
+                $this->tree["$root_id"] = $this->get_structure_tree_root();
+                $this->set_active_structure($this->tree, 0 . '|' . $this->active_path);
+            } else {
+                if (!$root_category = \rex_category::get($root_id)) throw new \rex_exception("given id $root_id is not a category");
+                $this->tree["$root_id"] = $this->get_structure_tree_rec($root_category, 0);
+                $this->set_active_structure($this->tree, $this->active_path);
+            }
         } else if ($tree && $active_path) {
             $this->tree = $tree;
             $this->active_path = $active_path;
@@ -52,6 +57,26 @@ class StructureTree {
 
     public function get_array(): array  {
         return $this->tree;
+    }
+
+    /**
+    ** returns the tree as a flat array of articles 
+    */
+
+    public function get_flat_array(): array {
+        $flat = [];
+
+        foreach($this->tree as $tree) {
+            foreach($tree["articles"] as $article) {
+                $flat[] = $article;
+            }
+
+            foreach($tree["categories"] as $category) {
+                $this->build_flat_array_rec($flat, $category);
+            }
+        }
+
+        return $flat;
     }
 
     /**
@@ -109,6 +134,14 @@ class StructureTree {
         return $tree;
     }
 
+    /**
+    ** returns the current active path
+    */
+
+    public function active_path(): string {
+        return $this->active_path;
+    }
+ 
     // --- private functions ----
 
     private function are_all_top_level_categories_empty(array $categories): bool {
@@ -192,6 +225,48 @@ class StructureTree {
     }
 
     /**
+    ** running through the tree from the root level 
+    */
+
+    private function get_structure_tree_root(): array {
+        $articles = [];
+        $categories = [];
+
+        foreach(\rex_article::getRootArticles() as $article) {
+            $id = $article->getId();
+            $active = false;
+
+            if ($id == $this->article_id_active) {
+                $active = true;
+                $this->active_path = $article->getValue("path") . "$id|";
+            }
+
+            $articles["$id"] = [
+                "active" => $active,
+                "status" => $article->getValue("status") ? true : false,
+                "depth" => 0,
+                "data" => $article,
+            ];
+        }
+
+        if (\is_callable($this->filter)) $articles = \array_filter($articles, $this->filter);
+
+
+        foreach(\rex_category::getRootCategories() as $item) {
+            $id = $item->getId();
+            $categories["$id"] = $this->get_structure_tree_rec($item, 0);
+        }
+     
+        return [
+            "active" => false,
+            "depth" => 0,
+            "data" => null,
+            "articles" => $articles,
+            "categories" => $categories,
+        ];
+    }
+
+    /**
     ** running through the tree recursivly
     */
 
@@ -240,13 +315,27 @@ class StructureTree {
 
     private function set_active_structure(array &$tree, string $active_path) {
         $iterator = array_filter(explode("|", $active_path), function($item) { return $item != ""; });
-      
+        
         while($iterator) {
             $key = array_shift($iterator);     
             if (!\array_key_exists($key, $tree)) break;
             $tree = &$tree[$key];
             $tree["active"] = true; 
             $tree = &$tree["categories"];
+        }
+    }
+
+    /**
+    * recursevly build a flat array of the articles
+    */
+
+    private function build_flat_array_rec(array &$flat, array $category) {
+        foreach($category["articles"] as $article) {
+            $flat[] = $article;
+        }
+
+        foreach($category["categories"] as $child) {
+            $this->build_flat_array_rec($flat, $child);
         }
     }
 }

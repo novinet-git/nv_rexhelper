@@ -12,7 +12,7 @@ class StructureTree {
 
     public static $cache = [];
 
-    public static function factory(int $root_id, $filter=null): StructureTree {
+    public static function factory(int $root_id=0, $filter=null): StructureTree {
         if ($filter) return new self($root_id, [], "", $filter);
         else if (!array_key_exists("$root_id", self::$cache)) {
             self::$cache["$root_id"] = new self($root_id, [], "", $filter);

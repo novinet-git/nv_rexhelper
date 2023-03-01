@@ -85,10 +85,9 @@ class Form
         // Wird von string in array convertiert
         // damit später Dateien im Formular an das Gesamte array angehängt werden können
 
-        if ($yform_email_template['attachments'] != '') 
+        if (!count($yform_email_template['attachments'])) 
         {
-            
-            $files = explode(',', $yform_email_template['attachments']);
+            $files = $yform_email_template['attachments'];
             
             foreach ($files as $file) 
             {

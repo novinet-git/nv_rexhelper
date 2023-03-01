@@ -230,16 +230,16 @@ class Form
             $aTables[$sql->getValue("table_name")] = $sql->getValue("name");
         }
 
-        $mform->addSelectField("$id.0.debug",["Nein", "Ja"], ["Debug Modus"]);
-        $mform->addSelectField("$id.0.redirectMode",["Ja", "Nein"], ["Automatische Weiterleitung zur Erfolgsseite?"]);
+        $mform->addSelectField("$id.0.debug",["Nein", "Ja"], ["label" => "Debug Modus"]);
+        $mform->addSelectField("$id.0.redirectMode",["Ja", "Nein"], ["label" => "Automatische Weiterleitung zur Erfolgsseite?"]);
         $mform->addSelectField("$id.0.template", $aArr, ["label" => "E-Mail-Template"]);
-        $mform->addSelectField("$id.0.successParam", ["Nein", "Ja"], ["Erfolgsparameter?"]);
-        $mform->addTextField("$id.0.successAnchor", ["Erfolgs Anker"]);
-        $mform->addSelectField("$id.0.tableName", $aTables, ["Tabelle"]);
+        $mform->addSelectField("$id.0.successParam", ["Nein", "Ja"], ["label" => "Erfolgsparameter?"]);
+        $mform->addTextField("$id.0.successAnchor", ["label" => "Erfolgs Anker"]);
+        $mform->addSelectField("$id.0.tableName", $aTables, ["label" => "Tabelle"]);
         $mform->addTextField("$id.0.mail_to", ["label" => "Empfänger E-Mail"]);
         $mform->addTextField("$id.0.subject", ["label" => "Abweichender Betreff E-Mail (Optional, sonst Standardwert aus E-Mail-Template)"]);
         $mform->addTextField("$id.0.mail_from", ["label" => "Abweichender Absender E-Mail (Optional, sonst Standardwert aus E-Mail-Template)"]);
         $mform->addTextField("$id.0.mail_from_name", ["label" => "Abweichender Absender Name (Optional, sonst Standardwert aus E-Mail-Template)"]);
-        $mform->addLinkField("$id.0.page_id_success", ["label" => "Erfolgsseite"]);
+        $mform->addLinkField(1, ["label" => "Erfolgsseite"]);
     }
 }
